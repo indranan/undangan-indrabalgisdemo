@@ -389,7 +389,16 @@ app.delete('/api/cms/music/:id', authenticateToken, (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
-app.get('/*', (req, res) => {
+app.get(/.*/, (req, res, next) => {
+    // Jika request menuju ke /api, jangan masuk ke index.html (biarkan API bekerja)
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
+    // Jika request untuk file statis (seperti .js, .css, .png), biarkan statis bekerja
+    if (req.path.includes('.')) {
+        return next();
+    }
+    // Jika request adalah halaman website, kirim index.html
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
