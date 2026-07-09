@@ -7,6 +7,8 @@ const crypto = require('crypto');
 const multer = require('multer'); // Tambahan pustaka upload berkas
 const path = require('path');
 const fs = require('fs');
+const baseUrl =
+`${req.protocol}://${req.get("host")}`;
 
 dotenv.config();
 
@@ -277,7 +279,7 @@ app.get('/api/cms/timeline', (req, res) => {
 
 app.post('/api/cms/timeline', authenticateToken, upload.single('image'), (req, res) => {
     const { title, date, content, sort_order } = req.body;
-    const imageUrl = req.file ? `http://localhost:5000/uploads/${req.file.filename}` : '';
+    const imageUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : '';
     const sql = `INSERT INTO timeline (title, date, content, image, sort_order) VALUES (?, ?, ?, ?, ?)`;
     db.run(sql, [title, date, content, imageUrl, sort_order || 0], function (err) {
         if (err) return res.status(500).json({ success: false });
@@ -329,7 +331,7 @@ app.get('/api/cms/gallery', (req, res) => {
 
 app.post('/api/cms/gallery', authenticateToken, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, error: "Tidak ada berkas" });
-    const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
     db.run(`INSERT INTO gallery (file_path) VALUES (?)`, [imageUrl], function (err) {
         if (err) return res.status(500).json({ success: false });
         res.json({ success: true, data: { id: this.lastID, file_path: imageUrl, sort_order: 0 } });
@@ -357,7 +359,7 @@ app.get('/api/cms/music', (req, res) => {
 app.post('/api/cms/music', authenticateToken, upload.single('audio'), (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, error: "Tidak ada berkas audio" });
     const { title } = req.body;
-    const audioUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    const audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
     db.run(`INSERT INTO tracks (title, file_path) VALUES (?, ?)`, [title || req.file.originalname, audioUrl], function (err) {
         if (err) return res.status(500).json({ success: false });
         res.json({ success: true, data: { id: this.lastID, title: title || req.file.originalname, file_path: audioUrl, is_active: 0 } });
