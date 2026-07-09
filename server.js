@@ -7,8 +7,7 @@ const crypto = require('crypto');
 const multer = require('multer'); // Tambahan pustaka upload berkas
 const path = require('path');
 const fs = require('fs');
-const baseUrl =
-`${req.protocol}://${req.get("host")}`;
+const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
 
 dotenv.config();
 
