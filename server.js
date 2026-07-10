@@ -358,6 +358,8 @@ app.get('/api/cms/music', (req, res) => {
 app.post('/api/cms/music', authenticateToken, upload.single('audio'), (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, error: "Tidak ada berkas audio" });
     const { title } = req.body;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const baseUrl = `${protocol}://${req.get('host')}`;
     const audioUrl = `${baseUrl}/uploads/${req.file.filename}`;
     db.run(`INSERT INTO tracks (title, file_path) VALUES (?, ?)`, [title || req.file.originalname, audioUrl], function (err) {
         if (err) return res.status(500).json({ success: false });
